@@ -11,13 +11,17 @@ deleteOrder
 } = require('../controllers/orderController'); 
 
 const { protect } = require('../middlewares/authMiddleware'); 
+const { restrictTo } = require('../middlewares/roleMiddleware');
 
-// Protect all order routes 
-router.use(protect); 
-router.get('/', protect, getAllOrders); 
-router.post('/', protect, createOrder); 
-router.get('/:id', protect, getOrderById); 
-router.put('/:id', protect, updateOrder);
-router.delete('/:id', protect, deleteOrder); 
 
+ 
+// Vendor-only routes
+router.use(protect);
+router.get('/', restrictTo('vendor'), getAllOrders);
+router.get('/:id', restrictTo('vendor'), getOrderById);
+
+// Authenticated user (customer or vendor) can create, update, delete
+router.post('/', createOrder);
+router.put('/:id', updateOrder);
+router.delete('/:id', deleteOrder);
 module.exports = router;

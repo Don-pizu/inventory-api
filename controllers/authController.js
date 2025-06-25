@@ -11,11 +11,16 @@ const createToken = (id) => {
 // Register new user
 exports.register = async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { username, password, role } = req.body;
 
         if (!username || !password) {
             return res.status(400).json({ message: 'Username and password are required.' });
         }
+
+        //Picking role
+        const newRole = ['vendor', 'customer'];
+        const userRole = role && newRole.includes(role) ? role : 'customer';
+
 
         // Check if user already exists
         const userExists = await User.findOne({ username });
@@ -23,11 +28,12 @@ exports.register = async (req, res) => {
             return res.status(409).json({ message: 'Username already exists.' });
         }
 
-        const user = await User.create({ username, password });
+        const user = await User.create({ username, password, role: userRole });
 
         res.status(201).json({
             _id: user._id,
             username: user.username,
+            role: user.role,
             token: createToken(user._id),
         });
     } catch (error) {

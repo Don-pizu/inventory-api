@@ -25,9 +25,13 @@ const order = await Order.create({
 
 // Get order by ID 
 exports.getOrderById = async (req, res) => { 
+	if(req.user.role !== 'vendor') {
+		return res.status(403).json({ message: 'Access denied: Vendors only' });
+	}
 	const order = await Order.findById(req.params.id) 
 	.populate('product', 'name price') 
 	.populate('user', 'username'); 
+
 	if (!order) return res.status(404).json({ message: 'Order not found' }); 
 	res.json(order); 
 }; 
